@@ -7,6 +7,7 @@ This project is a fork of https://github.com/bchavez/BugTrap. With a different p
 * Add support for VS2019 & VS2022
 * Remove BugTrap Server Application (deprecated)
 * Remove MFC support
+* Remove German translation
 
 # BugTrap
 
