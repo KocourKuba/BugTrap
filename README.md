@@ -9,6 +9,7 @@ This project is a fork of https://github.com/bchavez/BugTrap. With a different p
 * Remove MFC support
 * Remove German translation
 * Remove `WaitDlg` (doesn't seems very revelant to the today hardware standard, just a visual "flash"), `AnimProgressBar` and `ThemeXP`.
+* Support only Visual Studio 2019 and 2022 (VS2022 recommanded).
 
 # BugTrap
 
