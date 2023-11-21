@@ -8,19 +8,14 @@ INT_PTR g_iLogHandle = -1;
 static void SetupExceptionHandler()
 {
 	// Setup exception handler
-	BT_SetAppName(_T("BugTrap Console Test"));
+	BT_SetAppName(_T("BugTrap Test"));
 	BT_SetSupportEMail(_T("your@email.com"));
+	BT_SetSupportURL(_T("https://github.com/Brouilles/BugTrap"));
 	BT_SetFlags(BTF_DETAILEDMODE | BTF_ATTACHREPORT);
 
 	// = BugTrapServer ===========================================
-	BT_SetSupportServer(_T("localhost"), 9999);
-	// - or -
-	//BT_SetSupportServer(_T("127.0.0.1"), 9999);
+	BT_SetSupportServer(_T("127.0.0.1"), 9999);
 
-	// = BugTrapWebServer ========================================
-	//BT_SetSupportServer(_T("http://localhost/BugTrapWebServer/RequestHandler.aspx"), BUGTRAP_HTTP_PORT);
-
-	// required for VS 2005 & 2008
 	BT_InstallSehFilter();
 
 	// Add custom log file using default name
