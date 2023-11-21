@@ -810,10 +810,8 @@
     <ClCompile Include="SendMailDlg.cpp" />
     <ClCompile Include="SimpleDlg.cpp" />
     <ClCompile Include="TransferProgressDlg.cpp" />
-    <ClCompile Include="WaitDlg.cpp" />
     <ClCompile Include="ColHelper.cpp" />
     <ClCompile Include="StrHolder.cpp" />
-    <ClCompile Include="AnimProgressBar.cpp" />
     <ClCompile Include="HexView.cpp" />
     <ClCompile Include="HyperLink.cpp" />
     <ClCompile Include="ImageView.cpp" />
@@ -831,7 +829,6 @@
     <ClCompile Include="SymEngine.cpp" />
     <ClCompile Include="SymEngineNet.cpp" />
     <ClCompile Include="TextLogFile.cpp" />
-    <ClCompile Include="ThemeXP.cpp" />
     <ClCompile Include="XmlLogFile.cpp" />
     <ClCompile Include="BugTrap.cpp" />
     <ClCompile Include="BugTrapNet.cpp" />
@@ -874,7 +871,6 @@
     <ClInclude Include="SendMailDlg.h" />
     <ClInclude Include="SimpleDlg.h" />
     <ClInclude Include="TransferProgressDlg.h" />
-    <ClInclude Include="WaitDlg.h" />
     <ClInclude Include="Array.h" />
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="ColHelper.h" />
@@ -883,7 +879,6 @@
     <ClInclude Include="List.h" />
     <ClInclude Include="SmartPtr.h" />
     <ClInclude Include="StrHolder.h" />
-    <ClInclude Include="AnimProgressBar.h" />
     <ClInclude Include="HexView.h" />
     <ClInclude Include="HyperLink.h" />
     <ClInclude Include="ImageView.h" />
@@ -902,7 +897,6 @@
     <ClInclude Include="SymEngine.h" />
     <ClInclude Include="SymEngineNet.h" />
     <ClInclude Include="TextLogFile.h" />
-    <ClInclude Include="ThemeXP.h" />
     <ClInclude Include="XmlLogFile.h" />
     <ClInclude Include="BTAtlWindow.h" />
     <ClInclude Include="BTTrace.h" />

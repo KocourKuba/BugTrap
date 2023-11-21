@@ -17,7 +17,6 @@
 #include "BugTrap.h"
 #include "BugTrapUtils.h"
 #include "BugTrapUI.h"
-#include "WaitDlg.h"
 #include "WaitCursor.h"
 #include "MainDlg.h"
 #include "SimpleDlg.h"
@@ -1260,10 +1259,6 @@ BOOL SaveReport(PCTSTR pszFileName)
 static BOOL CreateTempReport(void)
 {
 	BOOL bResult;
-	// Scope of progress dialog.
-	CWaitDialog wait;
-	if (g_bShowUI)
-		wait.BeginWait(NULL);
 
 	TCHAR szReportFileName[MAX_PATH];
 	g_pSymEngine->GetReportFileName(szReportFileName, countof(szReportFileName));

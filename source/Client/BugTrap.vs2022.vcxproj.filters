@@ -133,17 +133,11 @@
     <ClCompile Include="TransferProgressDlg.cpp">
       <Filter>Dialogs\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WaitDlg.cpp">
-      <Filter>Dialogs\Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ColHelper.cpp">
       <Filter>Collections\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StrHolder.cpp">
       <Filter>Collections\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AnimProgressBar.cpp">
-      <Filter>Controls\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="HexView.cpp">
       <Filter>Controls\Source Files</Filter>
@@ -194,9 +188,6 @@
       <Filter>System\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TextLogFile.cpp">
-      <Filter>System\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ThemeXP.cpp">
       <Filter>System\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="XmlLogFile.cpp">
@@ -282,9 +273,6 @@
     <ClInclude Include="TransferProgressDlg.h">
       <Filter>Dialogs\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WaitDlg.h">
-      <Filter>Dialogs\Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Array.h">
       <Filter>Collections\Header Files</Filter>
     </ClInclude>
@@ -308,9 +296,6 @@
     </ClInclude>
     <ClInclude Include="StrHolder.h">
       <Filter>Collections\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AnimProgressBar.h">
-      <Filter>Controls\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HexView.h">
       <Filter>Controls\Header Files</Filter>
@@ -364,9 +349,6 @@
       <Filter>System\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TextLogFile.h">
-      <Filter>System\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ThemeXP.h">
       <Filter>System\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="XmlLogFile.h">

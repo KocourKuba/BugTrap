@@ -8,6 +8,7 @@ This project is a fork of https://github.com/bchavez/BugTrap. With a different p
 * Remove BugTrap Server Application (deprecated)
 * Remove MFC support
 * Remove German translation
+* Remove `WaitDlg` (doesn't seems very revelant to the today hardware standard, just a visual "flash"), `AnimProgressBar` and `ThemeXP`.
 
 # BugTrap
 
