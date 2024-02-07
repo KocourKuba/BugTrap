@@ -646,30 +646,30 @@ void CTextView::LoadCache(void)
 					dwLineBufferPos = 0;
 					break;
 				}
-				CLineInfo& rLineInfo = m_arrLines[(size_t)m_dwNumCachedLines];
-				if (dwTextCachePos + rLineInfo.m_dwLength > TEXT_CACHE_SIZE)
+				CLineInfo& rcLineInfo = m_arrLines[(size_t)m_dwNumCachedLines];
+				if (dwTextCachePos + rcLineInfo.m_dwLength > TEXT_CACHE_SIZE)
 					goto end;
 				DWORD dwLineSize;
 				if (m_dwNumCachedLines + 1 < dwNumLines)
 				{
 					const CLineInfo& rNextLineInfo = m_arrLines[(size_t)m_dwNumCachedLines + 1];
-					dwLineSize = rNextLineInfo.m_dwLineStart - rLineInfo.m_dwLineStart; // line size includes line end
+					dwLineSize = rNextLineInfo.m_dwLineStart - rcLineInfo.m_dwLineStart; // line size includes line end
 				}
 				else
-					dwLineSize = rLineInfo.m_dwSize;
+					dwLineSize = rcLineInfo.m_dwSize;
 				if (dwLineSize > dwBytesLeft)
 				{
 					MoveMemory(m_pLineBuffer, m_pLineBuffer + dwLineBufferPos, dwBytesLeft);
 					dwLineBufferPos = dwBytesLeft;
 					break;
 				}
-				m_pDecoder->DecodeString(m_pLineBuffer + dwLineBufferPos, rLineInfo.m_dwSize, m_pTextCache + dwTextCachePos, rLineInfo.m_dwLength);
-				int nLineWidth = LOWORD(GetTabbedTextExtent(hdc, m_pTextCache + dwTextCachePos, rLineInfo.m_dwLength, 0, NULL));
+				m_pDecoder->DecodeString(m_pLineBuffer + dwLineBufferPos, rcLineInfo.m_dwSize, m_pTextCache + dwTextCachePos, rcLineInfo.m_dwLength);
+				int nLineWidth = LOWORD(GetTabbedTextExtent(hdc, m_pTextCache + dwTextCachePos, rcLineInfo.m_dwLength, 0, NULL));
 				if (m_nMaxLineWidth < nLineWidth)
 					m_nMaxLineWidth = nLineWidth;
 
-				rLineInfo.m_dwTextStart = dwTextCachePos;
-				dwTextCachePos += rLineInfo.m_dwLength;
+				rcLineInfo.m_dwTextStart = dwTextCachePos;
+				dwTextCachePos += rcLineInfo.m_dwLength;
 				dwLineBufferPos += dwLineSize;
 				++m_dwNumCachedLines;
 			}
@@ -712,10 +712,10 @@ BOOL CTextView::CacheLine(DWORD dwCachedLineNum, HDC hdc, const TEXTMETRIC& tmet
 			BOOL bLineNumberChanged = FALSE;
 			if (dwFirstCachedLine > 0)
 			{
-				const CLineInfo& rLineInfo = m_arrLines[(size_t)(dwFirstCachedLine - 1)];
-				if (dwTotalSize + rLineInfo.m_dwLength <= TEXT_CACHE_SIZE)
+				const CLineInfo& rPrevLineInfo = m_arrLines[(size_t)(dwFirstCachedLine - 1)];
+				if (dwTotalSize + rPrevLineInfo.m_dwLength <= TEXT_CACHE_SIZE)
 				{
-					dwTotalSize += rLineInfo.m_dwLength;
+					dwTotalSize += rPrevLineInfo.m_dwLength;
 					--dwFirstCachedLine;
 					bLineNumberChanged = TRUE;
 				}
@@ -727,10 +727,10 @@ BOOL CTextView::CacheLine(DWORD dwCachedLineNum, HDC hdc, const TEXTMETRIC& tmet
 			BOOL bLineNumberChanged = FALSE;
 			if (dwLastCachedLine + 1 < dwNumLines)
 			{
-				const CLineInfo& rLineInfo = m_arrLines[((size_t)dwLastCachedLine + 1)];
-				if (dwTotalSize + rLineInfo.m_dwLength <= TEXT_CACHE_SIZE)
+				const CLineInfo& rNextineInfo = m_arrLines[((size_t)dwLastCachedLine + 1)];
+				if (dwTotalSize + rNextineInfo.m_dwLength <= TEXT_CACHE_SIZE)
 				{
-					dwTotalSize += rLineInfo.m_dwLength;
+					dwTotalSize += rNextineInfo.m_dwLength;
 					++dwLastCachedLine;
 					bLineNumberChanged = TRUE;
 				}
@@ -775,8 +775,7 @@ BOOL CTextView::CacheLine(DWORD dwCachedLineNum, HDC hdc, const TEXTMETRIC& tmet
 		dwMemSize = rLineInfo2.m_dwTextStart + rLineInfo2.m_dwLength - rLineInfo1.m_dwTextStart;
 		for (DWORD dwLineNum = dwFirstLoadedLine; dwLineNum <= dwLastLoadedLine; ++dwLineNum)
 		{
-			const CLineInfo& rLineInfo = m_arrLines[(size_t)dwLineNum];
-			dwToMemOffset += rLineInfo.m_dwLength;
+			dwToMemOffset += m_arrLines[(size_t)dwLineNum].m_dwLength;
 		}
 		dwLoadOffset = 0;
 	}
@@ -796,8 +795,7 @@ BOOL CTextView::CacheLine(DWORD dwCachedLineNum, HDC hdc, const TEXTMETRIC& tmet
 		MoveMemory(m_pTextCache + dwToMemOffset, m_pTextCache + dwFromMemOffset, dwMemSize * sizeof(TCHAR));
 		for (DWORD dwLineNum = dwFirstMappedLine; dwLineNum <= dwLastMappedLine; ++dwLineNum)
 		{
-			CLineInfo& rLineInfo = m_arrLines[(size_t)dwLineNum];
-			rLineInfo.m_dwTextStart = dwToMemOffset;
+			m_arrLines[(size_t)dwLineNum].m_dwTextStart = dwToMemOffset;
 			dwToMemOffset += rLineInfo.m_dwLength;
 		}
 	}
@@ -805,8 +803,7 @@ BOOL CTextView::CacheLine(DWORD dwCachedLineNum, HDC hdc, const TEXTMETRIC& tmet
 	if (dwNumLoadedLines > 0)
 	{
 		DWORD dwLineBufferPos = 0, dwLineNum = dwFirstLoadedLine;
-		const CLineInfo& rLineInfo = m_arrLines[(size_t)dwLineNum];
-		SetFilePointer(m_hFile, rLineInfo.m_dwLineStart, NULL, FILE_BEGIN);
+		SetFilePointer(m_hFile, m_arrLines[(size_t)dwLineNum].m_dwLineStart, NULL, FILE_BEGIN);
 		while (dwLineNum <= dwLastLoadedLine)
 		{
 			DWORD dwNumRead = 0;
@@ -818,15 +815,15 @@ BOOL CTextView::CacheLine(DWORD dwCachedLineNum, HDC hdc, const TEXTMETRIC& tmet
 				break;
 			while (dwLineNum <= dwLastLoadedLine)
 			{
-				CLineInfo& rLineInfo = m_arrLines[(size_t)dwLineNum];
+				CLineInfo& rcLineInfo = m_arrLines[(size_t)dwLineNum];
 				DWORD dwLineSize;
 				if (dwLineNum < dwLastLoadedLine)
 				{
 					const CLineInfo& rNextLineInfo = m_arrLines[((size_t)dwLineNum + 1)];
-					dwLineSize = rNextLineInfo.m_dwLineStart - rLineInfo.m_dwLineStart; // line size including line end
+					dwLineSize = rNextLineInfo.m_dwLineStart - rcLineInfo.m_dwLineStart; // line size including line end
 				}
 				else
-					dwLineSize = rLineInfo.m_dwSize;
+					dwLineSize = rcLineInfo.m_dwSize;
 				DWORD dwBytesLeft = dwNumRead - dwLineBufferPos;
 				if (dwLineSize > dwBytesLeft)
 				{
@@ -834,13 +831,13 @@ BOOL CTextView::CacheLine(DWORD dwCachedLineNum, HDC hdc, const TEXTMETRIC& tmet
 					dwLineBufferPos = dwBytesLeft;
 					break;
 				}
-				m_pDecoder->DecodeString(m_pLineBuffer + dwLineBufferPos, rLineInfo.m_dwSize, m_pTextCache + dwLoadOffset, rLineInfo.m_dwLength);
-				int nLineWidth = LOWORD(GetTabbedTextExtent(hdc, m_pTextCache + dwLoadOffset, rLineInfo.m_dwLength, 0, NULL));
+				m_pDecoder->DecodeString(m_pLineBuffer + dwLineBufferPos, rcLineInfo.m_dwSize, m_pTextCache + dwLoadOffset, rcLineInfo.m_dwLength);
+				int nLineWidth = LOWORD(GetTabbedTextExtent(hdc, m_pTextCache + dwLoadOffset, rcLineInfo.m_dwLength, 0, NULL));
 				if (nMaxLineWidth < nLineWidth)
 					nMaxLineWidth = nLineWidth;
 
-				rLineInfo.m_dwTextStart = dwLoadOffset;
-				dwLoadOffset += rLineInfo.m_dwLength;
+				rcLineInfo.m_dwTextStart = dwLoadOffset;
+				dwLoadOffset += rcLineInfo.m_dwLength;
 				dwLineBufferPos += dwLineSize;
 				++dwLineNum;
 			}
