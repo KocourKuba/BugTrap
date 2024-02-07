@@ -7,7 +7,6 @@
 #define IDD_MACHINE_INFO_DLG            103
 #define IDD_MACHINE_STATE_DLG           104
 #define IDI_BUG                         105
-#define IDD_WAIT_DLG                    106
 #define IDD_SEND_MAIL_DLG               107
 #define IDD_SIMPLE_DLG                  111
 #define IDS_BUGTRAP_NAME                112
@@ -99,7 +98,6 @@
 #define IDC_FILEFORMAT_FRAME            1046
 #define IDC_IMAGE_COMMANDS              1047
 #define IDC_VERSION_STRING              1049
-#define IDC_PROGRESS_BAR                1050
 #define IDC_DETAILS                     1051
 #define IDC_STATIC_VERSION              1052
 

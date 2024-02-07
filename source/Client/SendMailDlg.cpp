@@ -17,7 +17,6 @@
 #include "SendMailDlg.h"
 #include "BugTrapUI.h"
 #include "BugTrapUtils.h"
-#include "WaitDlg.h"
 #include "LayoutManager.h"
 #include "Globals.h"
 

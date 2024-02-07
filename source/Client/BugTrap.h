@@ -154,7 +154,13 @@ typedef enum BUGTRAP_FLAGS_tag
 	  * @brief Automatically restart the application after the crash has been
 	  * handled.
 	  */
-	 BTF_RESTARTAPP    = 0x200
+	 BTF_RESTARTAPP    = 0x200,
+	 /**
+	  * @brief By default BugTrap show a "More..." button to open
+	  * the advanced ui in the simple dialog. Enable this flag
+	  * hide the button.
+	  */
+	 BTF_HIDEMOREBUTTON = 0x400,
 }
 BUGTRAP_FLAGS;
 
@@ -870,10 +876,6 @@ BUGTRAP_API void CDECL BT_CallNetFilter(void);
  #ifdef __ATLWIN_H__
   #include "BTAtlWindow.h"
  #endif // __ATLWIN_H__
-
- #ifdef __AFX_H__
-  #include "BTMfcWindow.h"
- #endif // __AFX_H__
 
 #endif // __cplusplus
 
