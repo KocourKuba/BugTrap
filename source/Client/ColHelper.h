@@ -301,7 +301,7 @@ public:
 template <typename KEY_TYPE>
 inline unsigned CHashTraits<KEY_TYPE>::HashKey(const KEY_TYPE& key)
 {
-	return ((unsigned)key >> 4);
+	return (unsigned)((size_t)key) >> 4;
 }
 
 /// Explicit template specialization for string hash tables.
