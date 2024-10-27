@@ -164,6 +164,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MD Debug|x64'">
     <TargetName>$(ProjectName)MSD-x64</TargetName>
   </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnabled>false</VcpkgEnabled>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
