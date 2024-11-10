@@ -21,6 +21,14 @@
 #include "MemStream.h"
 #include "FileStream.h"
 
+#if WINVER >= 0x600
+#include <ws2tcpip.h>
+#endif
+
+#if NTDDI_VERSION >= 0x0A000000
+#include <VersionHelpers.h>
+#endif
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -37,6 +45,19 @@
 #else
  #error CPU architecture is not supported.
 #endif
+
+BOOL IsWindows11OrGreater()
+{
+	OSVERSIONINFOEXW osinfo = { sizeof(osinfo), HIBYTE(_WIN32_WINNT_WIN10), LOBYTE(_WIN32_WINNT_WIN10), 22000, 0, { 0 }, 0, 0 };
+	DWORDLONG const mask = VerSetConditionMask(
+		VerSetConditionMask(
+			VerSetConditionMask(
+				0, VER_MAJORVERSION, VER_GREATER_EQUAL),
+			VER_MINORVERSION, VER_GREATER_EQUAL),
+		VER_BUILDNUMBER, VER_GREATER_EQUAL);
+
+	return VerifyVersionInfoW(&osinfo, VER_MAJORVERSION | VER_MINORVERSION | VER_BUILDNUMBER, mask) != FALSE;
+}
 
 CSymEngine::CEngineParams::CEngineParams(void)
 {
@@ -1172,15 +1193,87 @@ void CSymEngine::GetOsInfo(COsInfo& rOsInfo)
 	static const TCHAR szWindowsServer2012[] = _T("Windows Server 2012");
 	static const TCHAR szWindowsServer2012R2[] = _T("Windows Server 2012 R2");
 	static const TCHAR szWindowsServer2016[] = _T("Windows Server 2016");
+	static const TCHAR szWindowsServer2022[] = _T("Windows Server 2022");
 
+	rOsInfo.m_pszWinVersion = szUnknown;
+
+#if NTDDI_VERSION >= 0x0A000000
+	if (IsWindows11OrGreater())
+	{
+		if (IsWindowsServer())
+			rOsInfo.m_pszWinVersion = szWindowsServer2022;
+		else
+			rOsInfo.m_pszWinVersion = szWindows11;
+	}
+	else if (IsWindows10OrGreater())
+	{
+		if (IsWindowsServer())
+			rOsInfo.m_pszWinVersion = szWindowsServer2016;
+		else
+			rOsInfo.m_pszWinVersion = szWindows10;
+	}
+	else if (IsWindows8Point1OrGreater())
+	{
+		if (IsWindowsServer())
+			rOsInfo.m_pszWinVersion = szWindowsServer2012R2;
+		else
+			rOsInfo.m_pszWinVersion = szWindows81;
+	}
+	else if (IsWindows8OrGreater())
+	{
+		if (IsWindowsServer())
+			rOsInfo.m_pszWinVersion = szWindowsServer2012;
+		else
+			rOsInfo.m_pszWinVersion = szWindows8;
+	}
+	else if (IsWindows7OrGreater())
+	{
+		if (IsWindowsServer())
+			rOsInfo.m_pszWinVersion = szWindowsServer2008R2;
+		else
+			rOsInfo.m_pszWinVersion = szWindows7;
+	}
+	else if (IsWindowsVistaOrGreater())
+	{
+		if (IsWindowsServer())
+			rOsInfo.m_pszWinVersion = szWindowsServer2008;
+		else
+			rOsInfo.m_pszWinVersion = szWindowsVista;
+	}
+	else if (IsWindowsXPOrGreater())
+	{
+		if (IsWindowsServer())
+			rOsInfo.m_pszWinVersion = szWindowsServer2003;
+		else
+			rOsInfo.m_pszWinVersion = szWindowsXP;
+	}
+
+
+	//What will be the return value from this method
+	DWORD dwCurrentBuild = 0;
+	HKEY hCurrentVersion = nullptr;
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, _T("Software\\Microsoft\\Windows NT\\CurrentVersion"), 0, KEY_READ | KEY_WOW64_64KEY, &hCurrentVersion) == ERROR_SUCCESS)
+	{
+
+		BYTE byData[128] = {};
+		memset(byData, 0, sizeof(byData));
+		DWORD dwType = 0;
+		DWORD dwSize = sizeof(byData);
+		if (::RegQueryValueEx(hCurrentVersion, _T("CurrentBuildNumber"), nullptr, &dwType, byData, &dwSize) == ERROR_SUCCESS)
+			dwCurrentBuild = _ttoi((TCHAR*)byData);
+
+		//Don't forget to close the registry key we were using
+		RegCloseKey(hCurrentVersion);
+	}
+
+	_ultot_s(dwCurrentBuild, rOsInfo.m_szBuildNumber, countof(rOsInfo.m_szBuildNumber), 10);
+#else
 	OSVERSIONINFOEX osvi = { sizeof( OSVERSIONINFOEX ) };
 	GetVersionEx((OSVERSIONINFO*)&osvi);
 
 	SYSTEM_INFO sysi = {};
 	GetSystemInfo(&sysi);
-	
-	rOsInfo.m_pszWinVersion = szUnknown;
-	
+
 	switch (osvi.dwMajorVersion)
 	{
 	case 3:
@@ -1318,6 +1411,7 @@ void CSymEngine::GetOsInfo(COsInfo& rOsInfo)
 
 	_tcscpy_s(rOsInfo.m_szSPVersion, countof(rOsInfo.m_szSPVersion), osvi.szCSDVersion);
 	_ultot_s(osvi.dwBuildNumber, rOsInfo.m_szBuildNumber, countof(rOsInfo.m_szBuildNumber), 10);
+#endif
 
 #ifdef _MANAGED
 	NetThunks::GetNetVersion(rOsInfo.m_szNetVersion, countof(rOsInfo.m_szNetVersion));

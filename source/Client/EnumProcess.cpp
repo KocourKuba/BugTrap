@@ -15,6 +15,11 @@
  */
 
 #include "StdAfx.h"
+
+#if NTDDI_VERSION >= 0x0A000000
+#include <VersionHelpers.h>
+#endif
+
 #include "EnumProcess.h"
 
 #ifdef _DEBUG
@@ -77,6 +82,11 @@ CEnumProcess::CEnumProcess(void) :
 		FGetModuleFileNameEx = (PFGetModuleFileNameEx)GetProcAddress(m_hPsApiDll, "GetModuleFileNameExA");
 #endif
 
+#if NTDDI_VERSION >= 0x0A000000
+		// 4 - Windows XP and newer
+		// 2 - Windows 2000, i think no need to support lower system
+		m_dwSystemID = IsWindowsXPOrGreater() ? 4 : 2;
+#else
 		OSVERSIONINFO osvi;
 		osvi.dwOSVersionInfoSize = sizeof(osvi);
 		GetVersionEx(&osvi);
@@ -87,6 +97,7 @@ CEnumProcess::CEnumProcess(void) :
 				m_dwSystemID = 4; // Windows XP and newer
 		else
 			m_dwSystemID = 8; // Windows NT
+#endif
 	}
 
 	m_hKernelDll = GetModuleHandle(_T("KERNEL32.DLL"));
