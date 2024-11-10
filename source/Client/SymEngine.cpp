@@ -17,7 +17,6 @@
 #include "SymEngine.h"
 #include "BugTrap.h"
 #include "BugTrapUtils.h"
-#include "TextFormat.h"
 #include "Globals.h"
 #include "MemStream.h"
 #include "FileStream.h"
@@ -281,7 +280,7 @@ CSymEngine::CSymEngine(const CEngineParams& rParams)
 			m_hDbgHelpDll = NULL;
 		}
 	}
-	
+
 	if (m_hDbgHelpDll == NULL)
 	{
 		FSymGetOptions = NULL;
@@ -2244,13 +2243,36 @@ void CSymEngine::GetComputerIPs(CStrStream& rStream)
 		CHAR szHostName[256];
 		if (gethostname(szHostName, countof(szHostName)) == ERROR_SUCCESS)
 		{
+#if WINVER >= 0x600
+			addrinfo* ai = nullptr;
+			addrinfo hints = { 0 };
+			hints.ai_family = AF_INET;
+			hints.ai_flags = AI_CANONNAME;
+
+			if (0 == getaddrinfo(szHostName, nullptr, &hints, &ai))
+			{
+				for (int i = 0; ai; ai = ai->ai_next, i++)
+				{
+					if (ai->ai_family == AF_INET)
+					{
+						IN_ADDR sin_addr;
+						CopyMemory(&sin_addr, ai->ai_addr, ai->ai_addrlen);
+						char szBuf[16] = { 0 };
+						inet_ntop(AF_INET, &sin_addr, szBuf, 16);
+						rStream << _T(", ");
+						rStream << szBuf;
+						break;
+					}
+				}
+			}
+#else
 			hostent* pHostEnt = gethostbyname(szHostName);
 			if (pHostEnt != NULL && pHostEnt->h_addrtype == AF_INET)
 			{
 				DWORD dwAddrPos = 0;
 				for (;;)
 				{
-					void *pIPAddr = pHostEnt->h_addr_list[dwAddrPos];
+					void* pIPAddr = pHostEnt->h_addr_list[dwAddrPos];
 					if (pIPAddr == NULL)
 						break;
 					IN_ADDR sin_addr;
@@ -2262,6 +2284,7 @@ void CSymEngine::GetComputerIPs(CStrStream& rStream)
 					++dwAddrPos;
 				}
 			}
+#endif // WINVER >= 0x600
 		}
 		WSACleanup();
 	}
@@ -2288,6 +2311,36 @@ void CSymEngine::GetComputerIPs(CXmlWriter& rXmlWriter)
 		CHAR szHostName[256];
 		if (gethostname(szHostName, countof(szHostName)) == ERROR_SUCCESS)
 		{
+#if WINVER >= 0x600
+			addrinfo* ai = nullptr;
+			addrinfo hints = { 0 };
+			hints.ai_family = AF_INET;
+			hints.ai_flags = AI_CANONNAME;
+
+			if (0 == getaddrinfo(szHostName, nullptr, &hints, &ai))
+			{
+				rXmlWriter.WriteStartElement(_T("ips")); // <ips>
+				for (int i = 0; ai; ai = ai->ai_next, i++)
+				{
+					if (ai->ai_family == AF_INET)
+					{
+						IN_ADDR sin_addr;
+						CopyMemory(&sin_addr, ai->ai_addr, ai->ai_addrlen);
+						char szBuf[16] = { 0 };
+						inet_ntop(AF_INET, &sin_addr, szBuf, 16);
+#ifdef _UNICODE
+						TCHAR szIPAddr[32];
+						MultiByteToWideChar(CP_ACP, 0, szBuf, -1, szIPAddr, countof(szIPAddr));
+						PWSTR pszIPAddr = szIPAddr;
+#else
+						PSTR pszIPAddr = pszIPAddrA;
+#endif // _UNICODE
+						rXmlWriter.WriteElementString(_T("ip"), pszIPAddr); // <ip>...</ip>
+					}
+				}
+				rXmlWriter.WriteEndElement(); // </ips>
+			}
+#else
 			hostent* pHostEnt = gethostbyname(szHostName);
 			if (pHostEnt != NULL && pHostEnt->h_addrtype == AF_INET)
 			{
@@ -2295,7 +2348,7 @@ void CSymEngine::GetComputerIPs(CXmlWriter& rXmlWriter)
 				DWORD dwAddrPos = 0;
 				for (;;)
 				{
-					void *pIPAddr = pHostEnt->h_addr_list[dwAddrPos];
+					void* pIPAddr = pHostEnt->h_addr_list[dwAddrPos];
 					if (pIPAddr == NULL)
 						break;
 					IN_ADDR sin_addr;
@@ -2307,12 +2360,13 @@ void CSymEngine::GetComputerIPs(CXmlWriter& rXmlWriter)
 					PWSTR pszIPAddr = szIPAddr;
 #else
 					PSTR pszIPAddr = pszIPAddrA;
-#endif
+#endif // _UNICODE
 					rXmlWriter.WriteElementString(_T("ip"), pszIPAddr); // <ip>...</ip>
 					++dwAddrPos;
 				}
 				rXmlWriter.WriteEndElement(); // </ips>
 			}
+#endif // WINVER >= 0x600
 		}
 		WSACleanup();
 	}

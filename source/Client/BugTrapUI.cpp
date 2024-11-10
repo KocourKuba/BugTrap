@@ -27,6 +27,10 @@
 #include "MemStream.h"
 #include "VersionInfoString.h"
 
+#if WINVER >= 0x600
+#include <ws2tcpip.h>
+#endif
+
 #ifdef _MANAGED
 #include "NetThunks.h"
 #endif
@@ -340,15 +344,50 @@ static DWORD WSASendReport(PCTSTR pszHostName, CTransferThreadParams* pTransferT
 				SOCKADDR_IN sockAddr;
 				ZeroMemory(&sockAddr, sizeof(sockAddr));
 				if (*pszHostNameA >= '0' && *pszHostNameA <= '9')
+				{
+#if WINVER >= 0x600
+					in_addr ipstr = { 0 };
+					inet_pton(AF_INET, pszHostNameA, &ipstr);
+					sockAddr.sin_addr.s_addr = ipstr.S_un.S_addr;
+#else
 					sockAddr.sin_addr.s_addr = inet_addr(pszHostNameA);
+#endif // WINVER
+				}
 				else
 				{
+#if WINVER >= 0x600
+					addrinfo* ai = NULL;
+					addrinfo hints = { 0 };
+					hints.ai_family = AF_INET;
+					hints.ai_flags = AI_CANONNAME;
+
+					if (0 == getaddrinfo(pszHostNameA, NULL, &hints, &ai))
+					{
+						ULONG hostIP = INADDR_NONE;
+						for (int i = 0; ai; ai = ai->ai_next, i++)
+						{
+							const struct in_addr* addr4 = &((const struct sockaddr_in*)ai->ai_addr)->sin_addr;
+							if (ai->ai_family == AF_INET)
+							{
+								hostIP = addr4->S_un.S_addr;
+								break;
+							}
+						}
+
+						sockAddr.sin_addr.s_addr = hostIP;
+#else
 					hostent* pHostEnt = gethostbyname(pszHostNameA);
 					if (pHostEnt != NULL)
+					{
 						CopyMemory(&sockAddr.sin_addr, pHostEnt->h_addr, pHostEnt->h_length);
+#endif // WINVER >= 0x600
+					}
 					else
+					{
 						sockAddr.sin_addr.s_addr = INADDR_NONE;
+					}
 				}
+
 				if (sockAddr.sin_addr.s_addr != INADDR_NONE)
 				{
 					sockAddr.sin_family = AF_INET;
